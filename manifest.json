@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Copier Adresse PrestaShop",
+  "version": "1.0",
+  "description": "Ajoute un bouton pour copier proprement l'adresse de livraison dans PrestaShop admin.",
+  "permissions": ["scripting"],
+  "host_permissions": [
+    "https://ravenindustries.fr/adminz/index.php/sell/orders/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://ravenindustries.fr/adminz/index.php/sell/orders/*/view*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}
