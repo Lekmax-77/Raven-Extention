@@ -14,10 +14,9 @@
       const current = rawLines[i];
       const next = rawLines[i + 1];
 
-      // Fusion code postal + ville
       if (/^\d{5}$/.test(current) && next) {
         lines.push(`${current} ${next}`);
-        i++; // skip ville
+        i++;
       } else {
         lines.push(current);
       }
@@ -53,20 +52,77 @@
     return wrapper;
   }
 
+  function styliseQuantiteProduits() {
+    document.querySelectorAll('td.cellProductQuantity').forEach(cell => {
+      const qty = parseInt(cell.textContent.trim(), 10);
+      if (!isNaN(qty) && qty !== 1) {
+        cell.style.color = '#a30000';
+        cell.style.fontWeight = 'bold';
+        cell.style.border = '2px solid #a30000';
+        cell.style.borderRadius = '6px';
+        cell.style.backgroundColor = '#ffe5e5';
+        cell.style.display = 'inline-block';
+        cell.style.padding = '4px 8px';
+      } else {
+        cell.removeAttribute('style');
+      }
+    });
+  }
+
+  function styliseTransporteurNonColissimo() {
+    const rows = document.querySelectorAll('.card-body table tbody tr');
+    rows.forEach(row => {
+      const td = row.querySelector('td:nth-child(3)');
+      if (td) {
+        const txt = td.textContent.trim().toLowerCase();
+        if (!txt.includes('colissimo')) {
+          td.style.color = '#a30000';
+          td.style.fontWeight = 'bold';
+        } else {
+          td.removeAttribute('style');
+        }
+      }
+    });
+  }
+
+  function marquerPaysSiDifferent() {
+    const container = document.querySelector(SHIPPING_SELECTOR);
+    if (!container) return;
+
+    const lines = Array.from(container.querySelectorAll('p.mb-0'));
+    lines.forEach(p => {
+      const txt = p.textContent.trim().toLowerCase();
+      if (txt === 'france') {
+        p.style.color = ''; // normal
+        p.style.fontWeight = '';
+      } else if (/^[a-z\s-]+$/i.test(txt) && txt.length > 5) {
+        p.style.color = '#a30000';
+        p.style.fontWeight = 'bold';
+      }
+    });
+  }
+
+  function clickTabTransporteurs() {
+    const tabLink = document.querySelector('#orderShippingTab');
+    if (tabLink) tabLink.click();
+  }
+
   function injectPrestaCopyButton() {
     const container = document.querySelector(SHIPPING_SELECTOR);
     if (!container || container.dataset.copyAdded) return;
 
     container.dataset.copyAdded = 'true';
-
     const finalText = cleanPrestaAddress(container);
     const button = createCopyBtn(finalText);
     container.appendChild(button);
   }
 
-  // Observer PrestaShop admin loading
   const observer = new MutationObserver(() => {
     injectPrestaCopyButton();
+    clickTabTransporteurs();
+    styliseQuantiteProduits();
+    styliseTransporteurNonColissimo();
+    marquerPaysSiDifferent();
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
